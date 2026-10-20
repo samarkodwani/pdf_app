@@ -1,0 +1,33 @@
+{
+  "name": "pdf-reader",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test:fixtures": "python test/make_fixtures.py",
+    "test:book": "node test/run.mjs test/fixtures/book.pdf",
+    "test:paper": "node test/run.mjs test/fixtures/paper.pdf",
+    "test:mixed": "node test/run.mjs test/fixtures/mixed.pdf",
+    "test:scan": "node test/run.mjs test/fixtures/allscan.pdf",
+    "test:app": "node test/persist.mjs",
+    "test:pwa": "node test/pwa.mjs",
+    "test:share": "node test/share.mjs"
+  },
+  "dependencies": {
+    "idb-keyval": "^6.3.0",
+    "pdfjs-dist": "^6.4.299",
+    "tesseract.js": "^7.0.0",
+    "workbox-cacheable-response": "^7.4.1",
+    "workbox-precaching": "^7.4.1",
+    "workbox-routing": "^7.4.1",
+    "workbox-strategies": "^7.4.1"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.64.1",
+    "vite": "^8.3.4",
+    "vite-plugin-pwa": "^2.0.0"
+  }
+}
