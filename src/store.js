@@ -40,8 +40,15 @@ export const loadPos = (id) => {
 };
 export const savePos = (id, pos) => localStorage.setItem('pos:' + id, JSON.stringify(pos));
 
-const DEFAULTS = { fontSize: 18, theme: 'light', serif: true };
+const DEFAULTS = { fontSize: 18, theme: 'light', font: 'serif' };
 export const loadSettings = () => {
-  try { return { ...DEFAULTS, ...JSON.parse(localStorage.getItem('settings')) }; } catch { return { ...DEFAULTS }; }
+  try {
+    const saved = JSON.parse(localStorage.getItem('settings')) || {};
+    if (!saved.font && 'serif' in saved) saved.font = saved.serif ? 'serif' : 'sans'; // from the old Serif/Sans toggle
+    delete saved.serif;
+    return { ...DEFAULTS, ...saved };
+  } catch {
+    return { ...DEFAULTS };
+  }
 };
 export const saveSettings = (s) => localStorage.setItem('settings', JSON.stringify(s));

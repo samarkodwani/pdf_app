@@ -1,4 +1,8 @@
 import './style.css';
+import '@fontsource/comic-neue/latin-400.css';
+import '@fontsource/comic-neue/latin-700.css';
+import '@fontsource/atkinson-hyperlegible/latin-400.css';
+import '@fontsource/atkinson-hyperlegible/latin-700.css';
 import { loadPdf, extractText, runOcr } from './pdf/extract.js';
 import { renderPage } from './pdf/ocr.js';
 import { createReader } from './reader.js';
@@ -7,6 +11,18 @@ import { hashBuffer, saveDoc, getDoc, saveFile, getFile, listDocs, deleteDoc, lo
 
 const app = document.getElementById('app');
 const settings = loadSettings();
+
+// Reader fonts. Comic Neue / Atkinson are bundled (offline, same on every phone); the rest are system fonts.
+// "Comic Sans MS" itself only exists on Windows/Apple devices, so Comic Neue stands in elsewhere.
+const FONTS = [
+  { id: 'serif', label: 'Serif (Georgia)', css: "Georgia, 'Times New Roman', serif" },
+  { id: 'sans', label: 'Sans (system)', css: "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" },
+  { id: 'book', label: 'Book (Palatino)', css: "'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif" },
+  { id: 'verdana', label: 'Verdana', css: "Verdana, Geneva, sans-serif" },
+  { id: 'comic', label: 'Comic Sans MS', css: "'Comic Sans MS', 'Comic Neue', 'Comic Sans', cursive" },
+  { id: 'readable', label: 'Readable (Atkinson)', css: "'Atkinson Hyperlegible', Verdana, sans-serif" },
+  { id: 'mono', label: 'Monospace', css: "'Courier New', ui-monospace, Menlo, Consolas, monospace" },
+];
 
 // id matches [data-theme] in style.css; bg/fg only paint the swatch and the browser theme-color.
 const THEMES = [
@@ -26,7 +42,10 @@ function applySettings() {
   document.documentElement.dataset.theme = theme.id;
   document.querySelector('meta[name="theme-color"]').content = theme.bg;
   document.querySelectorAll('.swatch').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.theme === theme.id)));
-  document.querySelector('.reader')?.classList.toggle('serif', settings.serif);
+  const font = FONTS.find((f) => f.id === settings.font) || FONTS[0];
+  document.documentElement.style.setProperty('--reader-font', font.css);
+  const select = document.querySelector('.font-select');
+  if (select) select.value = font.id;
   saveSettings(settings);
 }
 
@@ -221,7 +240,10 @@ function buildSettings(panel) {
       b.onclick = () => { settings.theme = t.id; applySettings(); };
       return b;
     })),
-    mk('Serif / Sans', () => { settings.serif = !settings.serif; applySettings(); }),
+    Object.assign(
+      el('select', { className: 'font-select', ariaLabel: 'Font' }, ...FONTS.map((f) => el('option', { value: f.id, textContent: f.label }))),
+      { onchange(e) { settings.font = e.target.value; applySettings(); } },
+    ),
   );
 }
 

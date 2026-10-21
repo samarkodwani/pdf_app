@@ -17,6 +17,8 @@
     "test:share": "node test/share.mjs"
   },
   "dependencies": {
+    "@fontsource/atkinson-hyperlegible": "^5.3.0",
+    "@fontsource/comic-neue": "^5.3.0",
     "idb-keyval": "^6.3.0",
     "pdfjs-dist": "^6.4.299",
     "tesseract.js": "^7.0.0",

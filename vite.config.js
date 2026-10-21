@@ -15,7 +15,8 @@ export default defineConfig({
       srcDir: 'src',
       filename: 'sw.js',
       injectManifest: {
-        globPatterns: ['**/*.{js,css,html,svg,png,mjs}'],
+        // woff2 only: browsers that run this app all support it, so the .woff fallbacks needn't be cached
+        globPatterns: ['**/*.{js,css,html,svg,png,mjs,woff2}'],
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
       },
       manifest: {
