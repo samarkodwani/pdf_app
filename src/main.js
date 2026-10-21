@@ -7,12 +7,25 @@ import { hashBuffer, saveDoc, getDoc, saveFile, getFile, listDocs, deleteDoc, lo
 
 const app = document.getElementById('app');
 const settings = loadSettings();
+
+// id matches [data-theme] in style.css; bg/fg only paint the swatch and the browser theme-color.
+const THEMES = [
+  { id: 'light', label: 'Light', bg: '#fafaf7', fg: '#1d1d1b' },
+  { id: 'sepia', label: 'Sepia', bg: '#f4ecd8', fg: '#3b3226' },
+  { id: 'mint', label: 'Mint', bg: '#eef6f0', fg: '#1c2b22' },
+  { id: 'dark', label: 'Dark', bg: '#111111', fg: '#e6e6e1' },
+  { id: 'black', label: 'Black (OLED)', bg: '#000000', fg: '#d8d8d4' },
+  { id: 'midnight', label: 'Midnight', bg: '#0e1621', fg: '#d6e0ee' },
+  { id: 'dusk', label: 'Dusk', bg: '#1f1b2e', fg: '#e4dff0' },
+];
 let session = null; // the currently open document
 
 function applySettings() {
-  document.documentElement.dataset.theme = settings.theme;
   document.documentElement.style.setProperty('--font-size', settings.fontSize + 'px');
-  document.querySelector('meta[name="theme-color"]').content = { light: '#fafaf7', dark: '#111111', sepia: '#f4ecd8' }[settings.theme];
+  const theme = THEMES.find((t) => t.id === settings.theme) || THEMES[0];
+  document.documentElement.dataset.theme = theme.id;
+  document.querySelector('meta[name="theme-color"]').content = theme.bg;
+  document.querySelectorAll('.swatch').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.theme === theme.id)));
   document.querySelector('.reader')?.classList.toggle('serif', settings.serif);
   saveSettings(settings);
 }
@@ -201,9 +214,13 @@ function buildSettings(panel) {
     mk('A−', () => { size.value = settings.fontSize = Math.max(14, settings.fontSize - 1); applySettings(); }),
     size,
     mk('A+', () => { size.value = settings.fontSize = Math.min(30, settings.fontSize + 1); applySettings(); }),
-    mk('Light', () => { settings.theme = 'light'; applySettings(); }),
-    mk('Sepia', () => { settings.theme = 'sepia'; applySettings(); }),
-    mk('Dark', () => { settings.theme = 'dark'; applySettings(); }),
+    el('div', { className: 'swatches' }, ...THEMES.map((t) => {
+      const b = el('button', { className: 'swatch', textContent: 'A', title: t.label, ariaLabel: t.label });
+      b.dataset.theme = t.id;
+      b.style.cssText = `background:${t.bg};color:${t.fg}`;
+      b.onclick = () => { settings.theme = t.id; applySettings(); };
+      return b;
+    })),
     mk('Serif / Sans', () => { settings.serif = !settings.serif; applySettings(); }),
   );
 }
